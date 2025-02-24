@@ -5,17 +5,13 @@ import type React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { useSession, signOut } from "next-auth/react"
+import { useAuth } from "@/components/AuthProvider"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { User } from "lucide-react"
 
 const Navbar = () => {
   const pathname = usePathname()
-  const { data: session } = useSession()
-
-  const handleLogout = () => {
-    signOut({ callbackUrl: "/" })
-  }
+  const { user, logout } = useAuth()
 
   return (
     <nav className="bg-primary text-primary-foreground">
@@ -27,11 +23,9 @@ const Navbar = () => {
           <NavLink href="/" active={pathname === "/"}>
             Home
           </NavLink>
-          {session?.user.role === "PATIENT" && (
-            <NavLink href="/book" active={pathname === "/book"}>
-              Book Appointment
-            </NavLink>
-          )}
+          <NavLink href="/book" active={pathname === "/book"}>
+            Book Appointment
+          </NavLink>
           <NavLink href="/doctors" active={pathname === "/doctors"}>
             Our Doctors
           </NavLink>
@@ -41,34 +35,22 @@ const Navbar = () => {
           <NavLink href="/about" active={pathname === "/about"}>
             About Us
           </NavLink>
-          {session ? (
+          {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary">
                   <User className="mr-2 h-4 w-4" />
-                  {session.user.name}
+                  {user.name}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                {session.user.role === "PATIENT" && (
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard">Dashboard</Link>
-                  </DropdownMenuItem>
-                )}
-                {session.user.role === "DOCTOR" && (
-                  <DropdownMenuItem asChild>
-                    <Link href="/doctor/dashboard">Doctor Dashboard</Link>
-                  </DropdownMenuItem>
-                )}
-                {session.user.role === "ADMIN" && (
-                  <DropdownMenuItem asChild>
-                    <Link href="/admin/dashboard">Admin Dashboard</Link>
-                  </DropdownMenuItem>
-                )}
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard">Dashboard</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/profile">Profile</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (

@@ -22,8 +22,6 @@ type Appointment = {
   time: string
   doctorName: string
   specialty: string
-  status: string
-  notes: string | null
 }
 
 export default function PatientDashboard() {
@@ -39,7 +37,7 @@ export default function PatientDashboard() {
 
   const fetchAppointments = async () => {
     try {
-      const response = await fetch("/api/patients/appointments", {
+      const response = await fetch(`/api/appointments?patient=${user?.id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -107,7 +105,6 @@ export default function PatientDashboard() {
               <TableHead>Time</TableHead>
               <TableHead>Doctor</TableHead>
               <TableHead>Specialty</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -118,44 +115,26 @@ export default function PatientDashboard() {
                 <TableCell>{appointment.time}</TableCell>
                 <TableCell>{appointment.doctorName}</TableCell>
                 <TableCell>{appointment.specialty}</TableCell>
-                <TableCell>{appointment.status}</TableCell>
                 <TableCell>
-                  {appointment.status === "BOOKED" && (
-                    <>
-                      <Button onClick={() => handleReschedule(appointment.id)} className="mr-2">
-                        Reschedule
+                  <Button onClick={() => handleReschedule(appointment.id)} className="mr-2">
+                    Reschedule
+                  </Button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="destructive">Cancel</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Cancel Appointment</DialogTitle>
+                        <DialogDescription>
+                          Are you sure you want to cancel this appointment? This action cannot be undone.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Button onClick={() => handleCancel(appointment.id)} variant="destructive">
+                        Confirm Cancellation
                       </Button>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="destructive">Cancel</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Cancel Appointment</DialogTitle>
-                            <DialogDescription>
-                              Are you sure you want to cancel this appointment? This action cannot be undone.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <Button onClick={() => handleCancel(appointment.id)} variant="destructive">
-                            Confirm Cancellation
-                          </Button>
-                        </DialogContent>
-                      </Dialog>
-                    </>
-                  )}
-                  {appointment.status === "COMPLETED" && appointment.notes && (
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline">View Notes</Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Appointment Notes</DialogTitle>
-                        </DialogHeader>
-                        <p>{appointment.notes}</p>
-                      </DialogContent>
-                    </Dialog>
-                  )}
+                    </DialogContent>
+                  </Dialog>
                 </TableCell>
               </TableRow>
             ))}

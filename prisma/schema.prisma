@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(uuid())
+  username       String          @unique
+  password       String
+  role           UserRole
+  name           String
+  email          String          @unique
+  patientProfile PatientProfile?
+  doctorProfile  DoctorProfile?
+  bookingsAsPatient Booking[]    @relation("PatientBookings")
+  bookingsAsDoctor  Booking[]    @relation("DoctorBookings")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model PatientProfile {
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+  phone  String?
+}
+
+model DoctorProfile {
+  id         String    @id @default(uuid())
+  user       User      @relation(fields: [userId], references: [id])
+  userId     String    @unique
+  specialty  Specialty @relation(fields: [specialtyId], references: [id])
+  specialtyId String
+  photoUrl   String?
+  bio        String?
+}
+
+model Specialty {
+  id       String         @id @default(uuid())
+  name     String
+  doctors  DoctorProfile[]
+}
+
+model Booking {
+  id        String   @id @default(uuid())
+  patient   User     @relation("PatientBookings", fields: [patientId], references: [id])
+  patientId String
+  doctor    User     @relation("DoctorBookings", fields: [doctorId], references: [id])
+  doctorId  String
+  date      DateTime
+  time      String
+  status    BookingStatus @default(BOOKED)
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+enum UserRole {
+  PATIENT
+  DOCTOR
+  ADMIN
+}
+
+enum BookingStatus {
+  BOOKED
+  COMPLETED
+  CANCELLED
+}
+

@@ -3,14 +3,7 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "npm start"
+startCommand = "node server.js"
 healthcheckPath = "/"
 healthcheckTimeout = 100
-
-[build.args]
-DOCKER_BUILDKIT = "1"
-
-[build.steps]
-[build.steps.docker-build]
-command = "docker build --progress=plain --network=host -t app ."
 

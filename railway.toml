@@ -7,6 +7,3 @@ startCommand = "node server.js"
 healthcheckPath = "/"
 healthcheckTimeout = 100
 
-[nixpacks]
-nodejs = "18"
-
